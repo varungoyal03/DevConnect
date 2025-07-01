@@ -1,0 +1,40 @@
+# Node dependencies
+node_modules/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment files
+.env
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Optional: if using IDEs
+.vscode/
+.idea/
+
+# Build output
+dist/
+build/
+
+# Coverage directory used by testing tools like Jest
+coverage/
+
+# Temporary files
+tmp/
+temp/
+
+# Uploads (if any)
+uploads/
