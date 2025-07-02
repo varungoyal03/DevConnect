@@ -17,35 +17,30 @@ authRouter.post("/signup",async (req,res) => {
 
         validateSignUpData(req);
         
-        const {
-                        firstName,
-                        lastName,
-                        emailId,
-                        password,
-                        age,
-                        gender,
-                        about,
-                        skills,
-                    } = req.body;
+        const { firstName, lastName, emailId, password } = req.body;
 
-                    
-                
-                    const passwordHash = await bcrypt.hash(password, 10);
-
-                            const user = new User({
-            firstName,
-            lastName,
-            emailId,
-            password: passwordHash,
-            age,
-            gender,
-            about,
-            skills,
+        // Encrypt the password
+        const passwordHash = await bcrypt.hash(password, 10);
+    
+    
+        //   Creating a new instance of the User model
+        const user = new User({
+          firstName,
+          lastName,
+          emailId,
+          password: passwordHash,
         });
-        const savedUser=await user.save();
+    
+        const savedUser = await user.save();
+        const token = await savedUser.getJWT();
+    
+        res.cookie("token", token, {
+          expires: new Date(Date.now() + 8 * 3600000),
+        });
+    
 
  
-        res.status(201).json({message: "user added",savedUser });
+        res.status(201).json({message: "user added", data: savedUser });
 
     } catch (error) {
         res.status(500).json({error:"internal server error" , message: error.message  });
