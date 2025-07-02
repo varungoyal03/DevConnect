@@ -12,3 +12,13 @@ export const validateSignUpData = (req) => {
     throw new Error("Please enter a strong Password!");
   }
 };
+
+export const validateLoginData = ({ emailId, password }) => {
+  if (!emailId || !validator.isEmail(emailId)) {
+    throw new Error('Email is not valid');
+  }
+
+  if (!password) {
+    throw new Error('Password is required ');
+  }
+};  

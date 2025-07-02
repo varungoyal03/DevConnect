@@ -1,8 +1,9 @@
-import cookieParser from "cookie-parser";
-import express, { application } from "express"
-const router=express.Router();
 
-router.use(express.json());
-router.use(cookieParser());
+import express  from "express"
+const router=express.Router();
+import authRouter from "./auth.js"
+
+router.use('/',authRouter);
+
 
 export default router

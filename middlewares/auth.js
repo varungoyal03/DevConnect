@@ -1,6 +1,6 @@
 
-import { jwt } from "jsonwebtoken";
-import User from "../models/user.schema.js";
+import jwt from "jsonwebtoken";
+import User from './../models/User.schema.js';
 
 
 

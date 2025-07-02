@@ -1,13 +1,18 @@
 import express from "express"
 import dotenv from "dotenv";
+import cookieParser from "cookie-parser";
 
 import v1Routes from "./routes/v1/index.js"
+
 import { connectDB } from "./config/db.js";
 
 
 dotenv.config()
 
 const app=express();
+
+router.use(express.json());
+router.use(cookieParser());
 
 app.use("/api/v1",v1Routes)
 
@@ -20,7 +25,7 @@ app.use("/api/v1",v1Routes)
   });
   
   //global Error handller
-  app.use('/',(err, req, res, next) => {
+  app.use((err, req, res, next) => {
     console.error(err);
     res.status(500).send('Internal server error');
   });

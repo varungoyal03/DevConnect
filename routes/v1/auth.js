@@ -1,9 +1,8 @@
 
-import { express } from 'express';
+import express  from 'express';
 
-import { validator } from 'validator';
-
-import User from '../../models/user.schema.js';
+import validator from 'validator';
+import User from '../../models/User.schema.js';
 import bcrypt from "bcrypt"
 import { validateSignUpData } from '../../utils/validation.js';
 
@@ -34,11 +33,15 @@ authRouter.post("/signup",async (req,res) => {
         const savedUser = await user.save();
         const token = await savedUser.getJWT();
     
+      
         res.cookie("token", token, {
-          expires: new Date(Date.now() + 8 * 3600000),
-        });
-    
-
+            httpOnly: true, // 🔐 Prevents JavaScript access
+            secure: process.env.NODE_ENV === "production", // 🔐 HTTPS-only in production
+            sameSite: "strict", // Optional but helpful to prevent CSRF
+            expires: new Date(Date.now() + 8 * 3600000), // Optional: 8 hours
+          });
+          
+          
  
         res.status(201).json({message: "user added", data: savedUser });
 
@@ -61,11 +64,15 @@ authRouter.post("/login",async (req,res) => {
         }
         const isValidPassword = await user.validatePassword(password);
         if (isValidPassword) {
-            const token = await user.getjwt();
+            const token = await user.getJWT();
 
             res.cookie("token", token, {
-                expires: new Date(Date.now() + 8 * 3600000),
-            });
+                httpOnly: true, // 🔐 Prevents JavaScript access
+                secure: process.env.NODE_ENV === "production", // 🔐 HTTPS-only in production
+                sameSite: "strict", // Optional but helpful to prevent CSRF
+                expires: new Date(Date.now() + 8 * 3600000), // Optional: 8 hours
+              });
+              
 
 
 
@@ -83,4 +90,4 @@ authRouter.post("/login",async (req,res) => {
 })
 
 
-export default router;
+export default authRouter;
