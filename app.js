@@ -2,6 +2,7 @@ import express from "express"
 import dotenv from "dotenv";
 
 import v1Routes from "./routes/v1/index.js"
+import { connectDB } from "./config/db.js";
 
 
 dotenv.config()
@@ -25,6 +26,8 @@ app.use("/api/v1",v1Routes)
   });
 
 
+
+  const PORT = process.env.PORT || 4000;
   // ✅ Start server only if DB connects
   connectDB()
   .then(() => {
@@ -35,5 +38,5 @@ app.use("/api/v1",v1Routes)
   })
   .catch((err) => {
     console.error("❌ Database connection failed:", err.message);
-    process.exit(1); }
+    process.exit(1); })
 
