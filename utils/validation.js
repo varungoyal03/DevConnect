@@ -13,7 +13,9 @@ export const validateSignUpData = (req) => {
   }
 };
 
-export const validateLoginData = ({ emailId, password }) => {
+export const validateLoginData = (req) => {
+  const {  emailId, password } = req.body;
+
   if (!emailId || !validator.isEmail(emailId)) {
     throw new Error('Email is not valid');
   }
@@ -22,3 +24,23 @@ export const validateLoginData = ({ emailId, password }) => {
     throw new Error('Password is required ');
   }
 };  
+
+
+export const validateEditProfileData = (req) => {
+  const allowedEditFields = new Set([
+    "firstName",
+    "lastName",
+    "emailId",
+    "photoUrl",
+    "gender",
+    "age",
+    "about",
+    "skills",
+  ]);
+
+  for (const field of Object.keys(req.body)) {
+    if (!allowedEditFields.has(field)) return false; // ⏱️ O(1) check
+  }
+
+  return true;
+};

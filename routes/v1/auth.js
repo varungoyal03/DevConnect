@@ -4,7 +4,8 @@ import express  from 'express';
 import validator from 'validator';
 import User from '../../models/User.schema.js';
 import bcrypt from "bcrypt"
-import { validateSignUpData } from '../../utils/validation.js';
+import { validateLoginData, validateSignUpData } from '../../utils/validation.js';
+import { sanitizeUser } from './../../utils/sanitizeUser.js';
 
 
 
@@ -42,8 +43,8 @@ authRouter.post("/signup",async (req,res) => {
           });
           
           
- 
-        res.status(201).json({message: "user added", data: savedUser });
+    
+        res.status(201).json({message: "user added", data: sanitizeUser(savedUser) });
 
     } catch (error) {
         res.status(500).json({error:"internal server error" , message: error.message  });
@@ -51,13 +52,14 @@ authRouter.post("/signup",async (req,res) => {
 })
 
 authRouter.post("/login",async (req,res) => {
-    try {
-        const  {emailId,password}=req.body;
 
-  
-        if (!validator.isEmail(emailId)) {
-            throw new Error("Invalid Email");
-        }
+    try {
+
+        validateLoginData(req);
+        let  {emailId,password}=req.body;
+        
+        emailId = emailId?.trim().toLowerCase();
+        
         const user = await User.findOne({ emailId: emailId });
         if (!user) {
             throw new Error("Invalid Credentials");
@@ -77,8 +79,7 @@ authRouter.post("/login",async (req,res) => {
 
 
 
-            //remove passowrd 
-            res.status(200).json({message:"logged  in", user});
+            res.status(200).json({message:"logged  in", data: sanitizeUser(user)});
         } else {
             throw new Error("Invalid Vredentials");
         }
@@ -89,5 +90,17 @@ authRouter.post("/login",async (req,res) => {
     }
 })
 
+authRouter.post("/logout", (req, res) => {
+    res.clearCookie("token", {
+      httpOnly: true,                                 // 🔐 Prevents JS access
+      secure: process.env.NODE_ENV === "production",  // 🔐 HTTPS-only in production
+      sameSite: "strict",                             // 🛡️ CSRF protection
+    });
+  
+    return res.status(200).json({ message: "Logged out successfully" });
+  });
+
+  
+  
 
 export default authRouter;

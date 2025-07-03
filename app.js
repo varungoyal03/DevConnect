@@ -11,8 +11,8 @@ dotenv.config()
 
 const app=express();
 
-router.use(express.json());
-router.use(cookieParser());
+app.use(express.json());
+app.use(cookieParser());
 
 app.use("/api/v1",v1Routes)
 
@@ -20,7 +20,7 @@ app.use("/api/v1",v1Routes)
 
   
   // Default route
-   app.get('/', (req, res) => {
+   app.use('/', (req, res) => {
     res.send('This is the default route');
   });
   

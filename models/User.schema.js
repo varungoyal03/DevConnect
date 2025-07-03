@@ -32,7 +32,6 @@ const userSchema = new mongoose.Schema({
       password: {
         type: String,
         required: true,
-        select: false, // ✅ This hides it from all .find*() queries by default
         validate(value) {
           if (!validator.isStrongPassword(value)) {
             throw new Error("Enter a Strong Password: " + value);
