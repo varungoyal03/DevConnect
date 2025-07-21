@@ -1,8 +1,8 @@
 
 import express from "express"
 
-import { userAuth } from "../../middlewares/auth";
-import ConnectionRequest from "../../models/connectionRequest.schema";
+import { userAuth } from "../../middlewares/auth.js";
+import ConnectionRequest from "../../models/connectionRequest.schema.js";
 const requestRouter=express.Router();
 
 requestRouter.post(
