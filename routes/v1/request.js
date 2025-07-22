@@ -82,13 +82,15 @@ requestRouter.post(
         { status },
         { new: true } // Return updated document
       );
+
+      
       if (!connectionRequest) {
         return res
           .status(404)
           .json({ message: "Connection request not found or already processed" });
       }
 
-      res.json({ message: "Connection request " + status, data });
+      res.json({ message: "Connection request " + status, data:connectionRequest});
     } catch (err) {
       res.status(400).send("ERROR: " + err.message);
     }
