@@ -14,9 +14,10 @@ dotenv.config()
 const app=express();
 
 app.use(cors({
-  origin: "http://localhost:5173",  // must be exact, not '*'
+  origin:[ "http://localhost:5173", "https://codersconnect.vercel.app/" ] , // must be exact, not '*'
   credentials: true                 // ⬅️ allow cookies / auth headers
 }));
+
 
 app.use(express.json());
 app.use(cookieParser());
