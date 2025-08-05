@@ -3,6 +3,7 @@ import express from "express"
 
 import { userAuth } from "../../middlewares/auth.js";
 import ConnectionRequest from "../../models/connectionRequest.schema.js";
+import { onlineUsers } from "../../utils/onlineUsers.js";
 const requestRouter=express.Router();
 
 requestRouter.post(
@@ -91,6 +92,25 @@ requestRouter.post(
       }
 
       res.json({ message: "Connection request " + status, data:connectionRequest});
+
+
+            // 🔁 Broadcast SSE only on acceptance
+      if (status === "accepted") {
+        const fromId = connectionRequest.fromUserId.toString();
+        const toId = connectionRequest.toUserId.toString();
+
+        const fromUser = onlineUsers.get(fromId);
+        const toUser = onlineUsers.get(toId);
+
+        if (fromUser) {
+          fromUser.res.write(`event: connection-accepted\ndata: ${JSON.stringify({ userId: toId })}\n\n`);
+        }
+
+        if (toUser) {
+          toUser.res.write(`event: connection-accepted\ndata: ${JSON.stringify({ userId: fromId })}\n\n`);
+        }
+      }
+
     } catch (err) {
       res.status(400).send("ERROR: " + err.message);
     }

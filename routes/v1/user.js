@@ -147,22 +147,29 @@ userRouter.get("/user/online-status", userAuth, async (req, res) => {
 
   logOnlineUsers();
 
-  // Notify this user's friends who are online that this user came online
-  for (const [fid, friendObj] of onlineUsers) {
-    if (friendObj.friends.has(userId)) {
-      friendObj.res.write(`event: friend-online\ndata: ${JSON.stringify({ userId })}\n\n`);
-    }
+// simplified symmetric logic
+for (const fid of friendIds) {
+  const friendObj = onlineUsers.get(fid);
+  if (friendObj) {
+    // notify friend about me
+    friendObj.res.write(`event: friend-online\ndata: ${JSON.stringify({ userId })}\n\n`);
+
+    // notify me about friend
+    res.write(`event: friend-online\ndata: ${JSON.stringify({ userId: fid })}\n\n`);
   }
+}
+
+
 
   // Send back to this user the list of friends who are currently online
-  const onlineFriends = [];
-  for (const [fid, friendObj] of onlineUsers) {
-    if (friendIds.has(fid)) {
-      onlineFriends.push(fid);
-    }
-  }
+  // const onlineFriends = [];
+  // for (const [fid, friendObj] of onlineUsers) {
+  //   if (friendIds.has(fid)) {
+  //     onlineFriends.push(fid);
+  //   }
+  // }
 
-  res.write(`event: initial-online-friends\ndata: ${JSON.stringify(onlineFriends)}\n\n`);
+  // res.write(`event: initial-online-friends\ndata: ${JSON.stringify(onlineFriends)}\n\n`);
 
   // Handle client disconnect
   req.on("close", () => {
