@@ -4,6 +4,8 @@ const userRouter = express.Router();
 import { userAuth } from './../../middlewares/auth.js';
 import User from './../../models/User.schema.js';
 import ConnectionRequest from "../../models/connectionRequest.schema.js";
+import { logOnlineUsers, onlineUsers } from "../../utils/onlineUsers.js";
+
 
 
 
@@ -90,5 +92,90 @@ userRouter.get("/feed", userAuth, async (req, res) => {
     res.status(400).json({ message: err.message });
   }
 });
+
+
+
+
+
+
+
+
+
+
+// This SSE (/user/online-status) endpoint:
+
+// Tracks online friends.
+// Notifies friends when someone comes online/offline.
+// Sends initial list of online friends when user connects.
+// Cleans up when a user disconnects or refreshes.
+
+userRouter.get("/user/online-status", userAuth, async (req, res) => {
+  const userId = req.user._id.toString();
+
+  // Set SSE headers
+  res.set({
+    "Content-Type": "text/event-stream",
+    "Cache-Control": "no-cache",
+    Connection: "keep-alive",
+  });
+
+  // Send initial ping
+  res.write("event: connected\ndata: connected\n\n");
+
+  // Fetch this user's connections
+  const connections = await ConnectionRequest.find({
+    $or: [
+      { fromUserId: userId, status: "accepted" },
+      { toUserId: userId, status: "accepted" },
+    ],
+  });
+
+  const friendIds = new Set();
+  connections.forEach((conn) => {
+    const fid =
+      conn.fromUserId.toString() === userId
+        ? conn.toUserId.toString()
+        : conn.fromUserId.toString();
+    friendIds.add(fid);
+  });
+
+  // Save to onlineUsers map
+  onlineUsers.set(userId, {
+    res,
+    friends: friendIds,
+  });
+
+  logOnlineUsers();
+
+  // Notify this user's friends who are online that this user came online
+  for (const [fid, friendObj] of onlineUsers) {
+    if (friendObj.friends.has(userId)) {
+      friendObj.res.write(`event: friend-online\ndata: ${JSON.stringify({ userId })}\n\n`);
+    }
+  }
+
+  // Send back to this user the list of friends who are currently online
+  const onlineFriends = [];
+  for (const [fid, friendObj] of onlineUsers) {
+    if (friendIds.has(fid)) {
+      onlineFriends.push(fid);
+    }
+  }
+
+  res.write(`event: initial-online-friends\ndata: ${JSON.stringify(onlineFriends)}\n\n`);
+
+  // Handle client disconnect
+  req.on("close", () => {
+    onlineUsers.delete(userId);
+    // Notify friends that this user went offline
+    for (const [fid, friendObj] of onlineUsers) {
+      if (friendObj.friends.has(userId)) {
+        friendObj.res.write(`event: friend-offline\ndata: ${JSON.stringify({ userId })}\n\n`);
+      }
+    }
+  });
+});
+
+console.log(onlineUsers);
 
 export default userRouter
