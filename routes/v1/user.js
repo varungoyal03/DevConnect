@@ -96,12 +96,6 @@ userRouter.get("/feed", userAuth, async (req, res) => {
 
 
 
-
-
-
-
-
-
 // This SSE (/user/online-status) endpoint:
 
 // Tracks online friends.
@@ -186,3 +180,5 @@ for (const fid of friendIds) {
 console.log(onlineUsers);
 
 export default userRouter
+
+
