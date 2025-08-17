@@ -5,6 +5,7 @@ import Razorpayinstance from "../../utils/rajorpay.js";
 import Payment from "../../models/payment.js";
 import { validateWebhookSignature } from "razorpay/dist/utils/razorpay-utils.js";
 import User from "../../models/User.schema.js";
+import { membershipAmount } from "../../utils/constants.js";
 
 paymentRouter.post("/payment/create", userAuth, async (req, res) => {
   try {
